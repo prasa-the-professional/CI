@@ -1,37 +1,28 @@
-name: Run Python Tests
+name: My Second #2
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9]
+
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest
 
-      - name: Run Tests
-        run: |
-          echo "Running Python Tests..."
-          python -c "
-          def add(a, b):
-              return a + b
-
-          assert add(2, 3) == 5
-          assert add(-1, 1) == 0
-          assert add(0, 0) == 0
-          assert add(2.5, 2.5) == 5.0
-
-          print('All tests passed!')
-          "
+    - name: Run tests
+      run: |
+        cd GithubActions/src
+        python -m pytest add.py
